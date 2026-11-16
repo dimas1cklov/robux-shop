@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robux Booster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f2f4f5; /* Светлый фон как в Roblox */
+            /* Едва заметный паттерн на фоне */
+            background-image: radial-gradient(#d5d5d5 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #393b3d;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Smooth step transitions */
+        .step-container {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .step-container.active {
+            display: block;
+            opacity: 1;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Input styling */
+        input:focus {
+            outline: none;
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom Radio Button styling for amount selection */
+        .amount-radio:checked + div {
+            border-color: #000000;
+            background-color: #f9f9f9;
+        }
+        .amount-radio:checked + div .radio-circle {
+            border-color: #000000;
+        }
+        .amount-radio:checked + div .radio-circle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #000000;
+        }
+
+        /* Platform Button Active State */
+        .platform-btn.active {
+            background-color: #000000;
+            border-color: #000000;
+            color: #ffffff;
+        }
+
+        /* Loading Animation */
+        .pulse-icon {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .progress-bar-stripes {
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 1rem 1rem;
+            animation: moveStripes 1s linear infinite;
+        }
+
+        @keyframes moveStripes {
+            from { background-position: 1rem 0; }
+            to { background-position: 0 0; }
+        }
+
+        /* Hide scrollbar for main card */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Custom scrollbar for items store */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f9f9f9; 
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e5e7eb; 
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #d1d5db; 
+        }
+
+        /* Custom Item Selection Styling */
+        .item-checkbox:checked + div {
+            background-color: #000000 !important;
+            border-color: #000000 !important;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4) !important;
+            transform: scale(1.02);
+        }
+        .item-checkbox:checked + div span.text-black {
+            color: #ffffff !important;
+        }
+        .item-checkbox:checked + div span.text-gray-500 {
+            color: #9ca3af !important; /* Светло-серый для Limited Item */
+        }
+        /* Белый фон для картинок робуксов на черном фоне карточки */
+        .item-checkbox:checked + div img[alt="Robux"] {
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+        }
+    </style>
+</head>
+<body class="p-4">
+
+    <!-- Main Card -->
+    <div class="bg-white border border-gray-200 w-full max-w-[400px] rounded-[32px] p-6 shadow-2xl relative z-10 no-scrollbar" style="box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);">
+        
+        <!-- Header -->
+        <div class="flex flex-col items-center mb-8">
+            <!-- Provided Black Logo -->
+            <img src="https://cdn.imagetourls.com/uploads/tyImg/fdO371rl.webp" alt="Roblox Logo" class="h-8 mb-4">
+            <div class="bg-gray-100 border border-gray-200 text-gray-500 text-xs font-bold px-4 py-1.5 rounded-full tracking-widest uppercase">
+                Robux Booster
+            </div>
+        </div>
+
+        <!-- ================= STEP 1: USER INFO ================= -->
+        <div id="step-1" class="step-container active">
+            <!-- Username Input -->
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Username</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-user text-gray-400"></i>
+                    </div>
+                    <input type="text" id="usernameInput" class="w-full bg-gray-50 border border-gray-200 text-black rounded-xl pl-11 pr-12 py-3.5 focus:ring-0 transition-colors placeholder-gray-400" placeholder="Enter your exact username">
+                    <button type="button" onclick="generateRandomUsername()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-black transition-colors" title="Generate Random Username">
+                        <i class="fa-solid fa-dice text-lg"></i>
+                    </button>
+                </div>
+                <p id="usernameError" class="text-red-500 text-xs mt-2 hidden">Please enter a username.</p>
+            </div>
+
+            <!-- Platform Selection -->
+            <div class="mb-8">
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Select Platform</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button class="platform-btn bg-gray-50 border border-gray-200 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 text-gray-500 transition-all hover:bg-gray-100" data-platform="windows">
+                        <i class="fa-brands fa-windows text-xl"></i>
+                        <span class="text-[10px] font-semibold">Windows</span>
+                    </button>
+                    <button class="platform-btn bg-gray-50 border border-gray-200 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 text-gray-500 transition-all hover:bg-gray-100" data-platform="apple">
+                        <i class="fa-brands fa-apple text-xl"></i>
+                        <span class="text-[10px] font-semibold">iOS/Mac</span>
+                    </button>
+                    <button class="platform-btn bg-gray-50 border border-gray-200 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 text-gray-500 transition-all hover:bg-gray-100" data-platform="android">
+                        <i class="fa-brands fa-android text-xl"></i>
+                        <span class="text-[10px] font-semibold">Android</span>
+                    </button>
+                    <button class="platform-btn bg-gray-50 border border-gray-200 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 text-gray-500 transition-all hover:bg-gray-100" data-platform="xbox">
+                        <i class="fa-brands fa-xbox text-xl"></i>
+                        <span class="text-[10px] font-semibold">Xbox</span>
+                    </button>
+                </div>
+                <p id="platformError" class="text-red-500 text-xs mt-2 hidden">Please select a platform.</p>
+            </div>
+
+            <!-- Continue Button -->
+            <button onclick="goToStep(2)" class="w-full bg-black text-white font-bold rounded-xl py-4 flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors shadow-lg shadow-black/20">
+                CONTINUE <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- ================= STEP 2: SELECT AMOUNT ================= -->
+        <div id="step-2" class="step-container">
+            <div class="text-center mb-6">
+                <h2 class="text-xl font-bold text-black mb-1">Select Items</h2>
+                <p class="text-gray-500 text-sm">Choose multiple items to bundle</p>
+            </div>
+            
+            <div class="mb-8">
+                <!-- User Info Display Box -->
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-gray-500"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Username</div>
+                        <div id="displayUsername" class="text-sm font-bold text-black truncate max-w-[200px]"></div>
+                    </div>
+                </div>
+
+                <!-- Items Store (Scrollable Grid) -->
+                <div class="h-[280px] overflow-y-auto pr-2 custom-scrollbar pb-2">
+                    <div class="grid grid-cols-2 gap-4">
+                        
+                        <!-- Robux Items -->
+                        <label class="block relative cursor-pointer group">
+                            <input type="checkbox" name="item" value="1000" data-type="robux" data-name="1 000" data-icon="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="item-checkbox peer sr-only">
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-3 transition-all group-hover:border-gray-300 peer-checked:border-black peer-checked:bg-white peer-checked:shadow-[0_0_0_2px_rgba(0,0,0,1)] h-full">
+                                <img src="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="w-14 h-14 transition-transform group-hover:scale-110 peer-checked:scale-110" alt="Robux">
+                                <span class="text-xl font-bold text-black tracking-wide">1 000</span>
+                            </div>
+                        </label>
+
+                        <label class="block relative cursor-pointer group">
+                            <input type="checkbox" name="item" value="2500" data-type="robux" data-name="2 500" data-icon="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="item-checkbox peer sr-only">
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-3 transition-all group-hover:border-gray-300 peer-checked:border-black peer-checked:bg-white peer-checked:shadow-[0_0_0_2px_rgba(0,0,0,1)] h-full">
+                                <img src="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="w-14 h-14 transition-transform group-hover:scale-110 peer-checked:scale-110" alt="Robux">
+                                <span class="text-xl font-bold text-black tracking-wide">2 500</span>
+                            </div>
+                        </label>
+
+                        <label class="block relative cursor-pointer group">
+                            <input type="checkbox" name="item" value="5000" data-type="robux" data-name="5 000" data-icon="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="item-checkbox peer sr-only">
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-3 transition-all group-hover:border-gray-300 peer-checked:border-black peer-checked:bg-white peer-checked:shadow-[0_0_0_2px_rgba(0,0,0,1)] h-full">
+                                <img src="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="w-14 h-14 transition-transform group-hover:scale-110 peer-checked:scale-110" alt="Robux">
+                                <span class="text-xl font-bold text-black tracking-wide">5 000</span>
+                            </div>
+                        </label>
+
+                        <label class="block relative cursor-pointer group">
+                            <input type="checkbox" name="item" value="10000" data-type="robux" data-name="10 000" data-icon="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="item-checkbox peer sr-only">
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-3 transition-all group-hover:border-gray-300 peer-checked:border-black peer-checked:bg-white peer-checked:shadow-[0_0_0_2px_rgba(0,0,0,1)] h-full">
+                                <img src="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="w-14 h-14 transition-transform group-hover:scale-110 peer-checked:scale-110" alt="Robux">
+                                <span class="text-xl font-bold text-black tracking-wide">10 000</span>
+                            </div>
+                        </label>
+
+                        <label class="block relative cursor-pointer group">
+                            <input type="checkbox" name="item" value="25000" data-type="robux" data-name="25 000" data-icon="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="item-checkbox peer sr-only">
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-3 transition-all group-hover:border-gray-300 peer-checked:border-black peer-checked:bg-white peer-checked:shadow-[0_0_0_2px_rgba(0,0,0,1)] h-full">
+                                <img src="https://cdn.imagetourls.com/uploads/tyImg/14eFVIeJQ.png" class="w-14 h-14 transition-transform group-hover:scale-110 peer-checked:scale-110" alt="Robux">
+                                <span class="text-xl font-bold text-black tracking-wide">25 000</span>
+                            </div>
+                        </label>
+
+                        <!-- Exclusive Skins -->
+                        <label class="block relative cursor-pointer group">
+                            <input type="checkbox" name="item" value="Dominus" data-type="skin" data-name="Dominus" data-icon="https://cdn.imagetourls.com/uploads/tyImg/136oidUpc.webp" class="item-checkbox peer sr-only">
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all group-hover:border-gray-300 peer-checked:border-black peer-checked:bg-white peer-checked:shadow-[0_0_0_2px_rgba(0,0,0,1)] text-center h-full">
+                                <img src="https://cdn.imagetourls.com/uploads/tyImg/136oidUpc.webp" class="w-16 h-16 object-contain transition-transform group-hover:scale-110 peer-checked:scale-110" alt="Dominus">
+                                <div>
+                                    <span class="block text-sm font-bold text-black tracking-wide">Dominus</span>
+                                    <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Limited Item</span>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="block relative cursor-pointer group">
+                            <input type="checkbox" name="item" value="Korblox" data-type="skin" data-name="Korblox" data-icon="https://cdn.imagetourls.com/uploads/tyImg/Gclue8lR.png" class="item-checkbox peer sr-only">
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all group-hover:border-gray-300 peer-checked:border-black peer-checked:bg-white peer-checked:shadow-[0_0_0_2px_rgba(0,0,0,1)] text-center h-full">
+                                <img src="https://cdn.imagetourls.com/uploads/tyImg/Gclue8lR.png" class="w-16 h-16 object-contain transition-transform group-hover:scale-110 peer-checked:scale-110" alt="Korblox">
+                                <div>
+                                    <span class="block text-sm font-bold text-black tracking-wide">Korblox</span>
+                                    <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Limited Item</span>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="block relative cursor-pointer group">
+                            <input type="checkbox" name="item" value="Headless Horseman" data-type="skin" data-name="Headless Horseman" data-icon="https://cdn.imagetourls.com/uploads/tyImg/H5H0WQ2y.png" class="item-checkbox peer sr-only">
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all group-hover:border-gray-300 peer-checked:border-black peer-checked:bg-white peer-checked:shadow-[0_0_0_2px_rgba(0,0,0,1)] text-center h-full">
+                                <img src="https://cdn.imagetourls.com/uploads/tyImg/H5H0WQ2y.png" class="w-16 h-16 object-contain transition-transform group-hover:scale-110 peer-checked:scale-110" alt="Headless Horseman">
+                                <div>
+                                    <span class="block text-sm font-bold text-black tracking-wide leading-tight">Headless Horseman</span>
+                                    <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Limited Item</span>
+                                </div>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+                <p id="amountError" class="text-red-500 text-xs mt-4 hidden text-center">Please select at least one item.</p>
+            </div>
+
+            <button onclick="startGenerator()" class="w-full bg-black text-white font-bold rounded-xl py-4 flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors shadow-lg shadow-black/20">
+                START GENERATOR <i class="fa-solid fa-bolt"></i>
+            </button>
+        </div>
+
+        <!-- ================= STEP 3: GENERATING ================= -->
+        <div id="step-3" class="step-container text-center py-6">
+            
+            <div id="step3IconContainer" class="w-40 h-40 mx-auto mb-6 relative flex items-center justify-center">
+                <!-- Icon will be injected here -->
+            </div>
+
+            <div class="font-mono text-5xl font-extrabold text-black mb-1 tracking-tighter" id="counterDisplay">0</div>
+            <div class="text-gray-400 text-sm font-bold uppercase tracking-widest mb-8" id="itemTypeDisplay">Robux</div>
+
+            <div class="w-full bg-gray-100 rounded-full h-2.5 mb-3 overflow-hidden border border-gray-200">
+                <div id="progressBar" class="bg-black h-2.5 rounded-full transition-all duration-100 ease-linear w-0 progress-bar-stripes relative">
+                    <!-- Glow effect -->
+                    <div class="absolute top-0 right-0 bottom-0 w-10 bg-gradient-to-r from-transparent to-white opacity-20 blur-sm"></div>
+                </div>
+            </div>
+
+            <div id="statusText" class="text-sm font-medium text-gray-500 h-10 flex flex-col justify-center">
+                Connecting to server...
+            </div>
+        </div>
+
+        <!-- ================= STEP 4: SUCCESS ================= -->
+        <div id="step-4" class="step-container text-center py-6">
+            <div id="step4IconContainer" class="w-40 h-40 mx-auto mb-6 relative flex items-center justify-center">
+                <!-- Icon will be injected here -->
+            </div>
+
+            <div class="font-mono text-5xl font-extrabold text-black mb-1 tracking-tighter" id="finalAmountDisplay">0</div>
+            <div class="text-gray-400 text-sm font-bold uppercase tracking-widest mb-6" id="finalItemTypeDisplay">Robux</div>
+
+            <!-- Зеленая галочка -->
+            <div class="flex justify-center mb-5">
+                <i class="fa-solid fa-circle-check text-green-500 text-6xl shadow-sm rounded-full bg-white"></i>
+            </div>
+
+            <h3 class="text-xl font-bold text-black mb-2">Successfully sent!</h3>
+            <p class="text-gray-500 text-sm mb-8 px-4">The item has been added to your balance.</p>
+
+            <button onclick="resetApp()" class="w-full bg-black border border-black text-white font-bold rounded-xl py-4 flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors shadow-lg shadow-black/20">
+                GO TO ACCOUNT <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // State variables
+        let username = '';
+        let platform = '';
+        let selectedItemsData = [];
+
+        // Random Username Generator
+        function generateRandomUsername() {
+            const prefixes = ['Pro', 'Mega', 'Super', 'Dark', 'Ghost', 'Ninja', 'Epic', 'Roblox'];
+            const suffixes = ['Gamer', 'Killer', 'Boy', 'Girl', 'Master', 'Lord', 'King'];
+            const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+            const randomNumber = Math.floor(Math.random() * 9999);
+            
+            const randomName = `${randomPrefix}${randomSuffix}${randomNumber}`;
+            const input = document.getElementById('usernameInput');
+            input.value = randomName;
+            
+            // Hide error if visible
+            document.getElementById('usernameError').classList.add('hidden');
+        }
+
+        // Platform selection logic
+        const platformBtns = document.querySelectorAll('.platform-btn');
+        platformBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all
+                platformBtns.forEach(b => b.classList.remove('active'));
+                // Add to clicked
+                btn.classList.add('active');
+                platform = btn.dataset.platform;
+                document.getElementById('platformError').classList.add('hidden');
+            });
+        });
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step-container').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+        }
+
+        function goToStep(stepNumber) {
+            if (stepNumber === 2) {
+                // Validate Step 1
+                username = document.getElementById('usernameInput').value.trim();
+                let isValid = true;
+
+                if (!username) {
+                    document.getElementById('usernameError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('usernameError').classList.add('hidden');
+                }
+
+                if (!platform) {
+                    document.getElementById('platformError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('platformError').classList.add('hidden');
+                }
+
+                if (isValid) {
+                    document.getElementById('displayUsername').innerText = username;
+                    showStep(2);
+                }
+            }
+        }
+
+        function startGenerator() {
+            const selectedCheckboxes = document.querySelectorAll('input[name="item"]:checked');
+            if (selectedCheckboxes.length === 0) {
+                document.getElementById('amountError').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('amountError').classList.add('hidden');
+            
+            // Save selected items data into array
+            selectedItemsData = Array.from(selectedCheckboxes).map(cb => ({
+                value: cb.value,
+                type: cb.dataset.type,
+                name: cb.dataset.name,
+                icon: cb.dataset.icon
+            }));
+
+            setupGenerationUI();
+            showStep(3);
+            runGenerationProcess();
+        }
+
+        function setupGenerationUI() {
+            const step3Container = document.getElementById('step3IconContainer');
+            const typeDisplay = document.getElementById('itemTypeDisplay');
+            const finalTypeDisplay = document.getElementById('finalItemTypeDisplay');
+            const counterDisplay = document.getElementById('counterDisplay');
+
+            // Set initial icon (will be animated if multiple items)
+            let iconHTML = `<img id="genIcon" src="${selectedItemsData[0].icon}" class="w-full h-full object-contain relative z-10 pulse-icon drop-shadow-md" alt="Item">`;
+            
+            if (selectedItemsData.length > 1) {
+                typeDisplay.innerText = 'Multiple Items';
+                finalTypeDisplay.innerText = 'Bundle Delivered';
+            } else {
+                typeDisplay.innerText = selectedItemsData[0].type === 'robux' ? 'Robux' : 'Exclusive Item';
+                finalTypeDisplay.innerText = typeDisplay.innerText;
+            }
+
+            counterDisplay.classList.remove('font-mono', 'text-5xl');
+            counterDisplay.classList.add('text-3xl');
+
+            step3Container.innerHTML = iconHTML;
+        }
+
+        function runGenerationProcess() {
+            const counterDisplay = document.getElementById('counterDisplay');
+            const progressBar = document.getElementById('progressBar');
+            const statusText = document.getElementById('statusText');
+            
+            let totalRobux = 0;
+            let skins = [];
+            
+            // Calculate total robux and collect skin names
+            selectedItemsData.forEach(item => {
+                if (item.type === 'robux') totalRobux += parseInt(item.value);
+                if (item.type === 'skin') skins.push(item.name);
+            });
+
+            let currentAmount = 0;
+            let progress = 0;
+            const duration = 3000; // 3 seconds total animation
+            const interval = 50; // Update every 50ms
+            const steps = duration / interval;
+            const progressIncrement = 100 / steps;
+            let currentStep = 0;
+            
+            let amountIncrement = totalRobux > 0 ? totalRobux / steps : 0;
+            counterDisplay.innerHTML = `<span class="opacity-50">Loading...</span>`;
+
+            const messages = [
+                "Connecting to server...",
+                `Finding user: <span class="text-black font-bold">${username}</span>`,
+                "Establishing secure connection...",
+                "Bypassing security protocols...",
+                "Injecting payload...",
+                "Finalizing generation...",
+                "Verifying balance..."
+            ];
+
+            const updateInterval = setInterval(() => {
+                currentStep++;
+                
+                // Cycle icons dynamically every 10 steps (500ms)
+                if (currentStep % 10 === 0) {
+                    const iconIndex = Math.floor(currentStep / 10) % selectedItemsData.length;
+                    document.getElementById('genIcon').src = selectedItemsData[iconIndex].icon;
+                }
+                
+                // Update text display
+                if (totalRobux > 0) {
+                    currentAmount = Math.min(Math.floor(currentAmount + amountIncrement), totalRobux);
+                    let displayText = currentAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+                    
+                    // Alternate showing robux and skin names during generation
+                    if (skins.length > 0 && currentStep % 30 > 15) {
+                         const skinIndex = Math.floor((currentStep % (30 * skins.length)) / 30);
+                         displayText = skins[skinIndex];
+                         counterDisplay.innerHTML = `<span class="text-black font-bold text-2xl">${displayText}</span>`;
+                    } else {
+                         counterDisplay.innerHTML = `<span class="text-black font-mono text-4xl">${displayText}</span>`;
+                    }
+                } else if (skins.length > 0) {
+                    const skinIndex = Math.floor((currentStep / 15) % skins.length);
+                    counterDisplay.innerHTML = `<span class="text-black font-bold">${skins[skinIndex]}</span>`;
+                }
+                
+                // Update progress bar
+                progress = Math.min(progress + progressIncrement, 100);
+                progressBar.style.width = `${progress}%`;
+
+                // Update text based on progress percentage
+                const messageIndex = Math.min(Math.floor((progress / 100) * messages.length), messages.length - 1);
+                statusText.innerHTML = messages[messageIndex];
+
+                if (currentStep >= steps) {
+                    clearInterval(updateInterval);
+                    progressBar.style.width = '100%';
+                    
+                    // Setup final success screen text
+                    const finalDisplay = document.getElementById('finalAmountDisplay');
+                    let finalText = "";
+                    if (totalRobux > 0) finalText += totalRobux.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+                    
+                    if (skins.length > 0) {
+                        if (totalRobux > 0) finalText += " + Skins";
+                        else if (skins.length === 1) finalText += skins[0];
+                        else finalText += skins.length + " Items";
+                    }
+
+                    finalDisplay.classList.remove('font-mono', 'text-5xl');
+                    finalDisplay.classList.add('text-3xl', 'font-bold');
+                    finalDisplay.innerText = finalText;
+
+                    // Setup stacked icons for success screen
+                    let finalIconsHTML = selectedItemsData.slice(0, 3).map((item, index) => 
+                        `<img src="${item.icon}" class="w-16 h-16 object-contain drop-shadow-md mx-[-8px] bg-white rounded-full p-1 border-2 border-gray-100 relative z-${30 - index * 10}">`
+                    ).join('');
+                    
+                    if (selectedItemsData.length > 3) {
+                        finalIconsHTML += `<div class="w-12 h-12 flex items-center justify-center font-bold text-sm bg-gray-100 rounded-full border-2 border-white relative z-10 ml-[-8px]">+${selectedItemsData.length - 3}</div>`;
+                    }
+                    
+                    const step4Container = document.getElementById('step4IconContainer');
+                    step4Container.innerHTML = `<div class="flex justify-center items-center h-full">${finalIconsHTML}</div>`;
+                    
+                    setTimeout(() => {
+                        showStep(4);
+                    }, 800);
+                }
+            }, interval);
+        }
+
+        function resetApp() {
+            // Reset variables
+            username = '';
+            platform = '';
+            selectedItemsData = [];
+            
+            // Reset inputs
+            document.getElementById('usernameInput').value = '';
+            platformBtns.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('input[name="item"]').forEach(r => r.checked = false);
+            
+            // Reset displays
+            document.getElementById('progressBar').style.width = '0%';
+            
+            // Go to step 1
+            showStep(1);
+        }
+        
+        // Setup checkbox hiding error on click
+        document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                document.getElementById('amountError').classList.add('hidden');
+            });
+        });
+        
+        // Setup input hiding error on typing
+        document.getElementById('usernameInput').addEventListener('input', () => {
+             document.getElementById('usernameError').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
